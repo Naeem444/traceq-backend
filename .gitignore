@@ -1,0 +1,20 @@
+public/uploads/
+
+# Logs
+*.log
+
+# Composer vendor
+vendor/
+
+# Env secrets
+.env
+.env.* 
+
+# IDE / system
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Cache
+cache/

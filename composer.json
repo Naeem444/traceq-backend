@@ -1,0 +1,21 @@
+{
+  "name": "traceq-backend/backend",
+  "description": "TraceQ PHP API",
+  "type": "project",
+  "license": "proprietary",
+  "require": {
+    "firebase/php-jwt": "^6.10",
+    "vlucas/phpdotenv": "^5.6",
+    "guzzlehttp/guzzle": "^7.9"
+  },
+  "autoload": {
+    "files": [
+      "src/Response.php",
+      "src/Router.php",
+      "src/config.php",
+      "src/db.php",
+      "src/middleware.php",
+      "src/Firebase.php"
+    ]
+  }
+}

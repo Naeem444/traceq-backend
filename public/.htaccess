@@ -1,0 +1,12 @@
+# Always route to index.php
+RewriteEngine On
+RewriteBase /traceq-backend/public/
+
+# Pass Authorization header through to PHP (critical!)
+RewriteCond %{HTTP:Authorization} ^(.*)
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%1]
+
+# If you already had a generic rewrite to index.php, keep it
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
