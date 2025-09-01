@@ -26,9 +26,36 @@ $router->add('POST', '/user/update-profile', function () { UserController::updat
 
 // Me
 $router->add('GET', '/me', function () { UserController::me(); });
+
 // Health check
 $router->add('GET', '/health', function () {
-    Response::json(['ok' => true, 'service' => 'traceq-backend']);
+  $payload = [
+    'ok'      => true,
+    'service' => 'traceq-backend',
+    'time'    => gmdate('c'),
+    'db'  => [
+      'connected' => false,
+    ],
+  ];
+
+  try {
+    $pdo = DB::conn();
+    $row = $pdo->query("SELECT 1 AS ping, VERSION() AS mysql_version, DATABASE() AS db_name")->fetch();
+
+    $payload['db'] = [
+      'connected'     => true,
+      'ping'          => (int)($row['ping'] ?? 0) === 1,
+      'mysql_version' => $row['mysql_version'] ?? null,
+      'db_name'       => $row['db_name'] ?? null,
+    ];
+  } catch (Throwable $e) {
+   
+    error_log('[HEALTH DB] ' . $e->getMessage());
+    $payload['ok'] = false;
+    $payload['error'] = 'db_connect_failed';
+  }
+
+  Response::json($payload, $payload['ok'] ? 200 : 500);
 });
 
 
