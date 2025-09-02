@@ -2,12 +2,13 @@
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../src/controllers/AuthController.php';
 require __DIR__ . '/../src/controllers/UserController.php';
-
+require __DIR__ . '/../src/controllers/UploadController.php';
+require __DIR__ . '/../src/controllers/LostController.php';
+require __DIR__ . '/../src/controllers/FoundController.php';
 // Base path 
 $BASE_PATH = '/traceq-backend/public';
 
-
-header('Access-Control-Allow-Origin: http://localhost:5173');
+header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Headers: Authorization, Content-Type');
 header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -17,15 +18,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 $router = new Router();
 
-// Auth
+// Auth routes
 $router->add('POST', '/auth/signup', function () { AuthController::signup(); });
 $router->add('POST', '/auth/signin', function () { AuthController::signin(); });
 
-// User profile
+// User profile routes
 $router->add('POST', '/user/update-profile', function () { UserController::updateProfile(); });
-
-// Me
 $router->add('GET', '/me', function () { UserController::me(); });
+
+// Uploads
+$router->add('POST', '/upload/presign', function () { UploadController::generatePresignedUrls(); });
+$router->add('POST', '/upload/confirm', function () { UploadController::confirmUploads(); });
+$router->add('DELETE', '/upload/delete', function () { UploadController::deleteFile(); });
+
+// Lost report
+$router->add('POST', '/report-lost-item', function () { LostController::create(); });
+
+// /report-found-item
+$router->add('POST', '/report-found-item', function () {
+  return FoundController::create();
+});
 
 // Health check
 $router->add('GET', '/health', function () {
@@ -57,7 +69,6 @@ $router->add('GET', '/health', function () {
 
   Response::json($payload, $payload['ok'] ? 200 : 500);
 });
-
 
 
 // Dispatch

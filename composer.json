@@ -6,7 +6,8 @@
   "require": {
     "firebase/php-jwt": "^6.10",
     "vlucas/phpdotenv": "^5.6",
-    "guzzlehttp/guzzle": "^7.9"
+    "guzzlehttp/guzzle": "^7.9",
+    "aws/aws-sdk-php": "^3.356"
   },
   "autoload": {
     "files": [
@@ -15,7 +16,8 @@
       "src/config.php",
       "src/db.php",
       "src/middleware.php",
-      "src/Firebase.php"
+      "src/Firebase.php",
+      "src/S3.php" 
     ]
   }
 }

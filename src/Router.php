@@ -1,22 +1,61 @@
 <?php
+// src/Router.php
 class Router {
-    private array $routes = [];
+    private $routes = [];
 
-    public function add(string $method, string $path, callable $handler) {
-        $this->routes[] = compact('method', 'path', 'handler');
+    public function add($method, $path, $handler) {
+        $this->routes[] = [
+            'method' => strtoupper($method),
+            'path' => $path,
+            'handler' => $handler
+        ];
     }
 
-    public function dispatch(string $method, string $uri, string $basePath = '') {
-        $path = parse_url($uri, PHP_URL_PATH) ?? '/';
-        if ($basePath && str_starts_with($path, $basePath)) {
-            $path = substr($path, strlen($basePath));
-            if ($path === '') $path = '/';
+    public function dispatch($method, $uri, $basePath = '') {
+        // Remove base path and query string
+        $path = parse_url($uri, PHP_URL_PATH);
+        if ($basePath) {
+            $path = str_replace($basePath, '', $path);
         }
-        foreach ($this->routes as $r) {
-            if (strtoupper($method) === strtoupper($r['method']) && $r['path'] === $path) {
-                return $r['handler']();
+        $path = '/' . ltrim($path, '/');
+
+        $method = strtoupper($method);
+
+        foreach ($this->routes as $route) {
+            if ($route['method'] !== $method) {
+                continue;
+            }
+
+            // Check for exact match first
+            if ($route['path'] === $path) {
+                call_user_func($route['handler']);
+                return;
+            }
+
+            // Check for dynamic routes with parameters
+            $pattern = preg_replace('/\{([^}]+)\}/', '([^/]+)', $route['path']);
+            $pattern = '#^' . $pattern . '$#';
+
+            if (preg_match($pattern, $path, $matches)) {
+                array_shift($matches); // Remove full match
+                
+                // Extract parameter names
+                preg_match_all('/\{([^}]+)\}/', $route['path'], $paramNames);
+                $params = [];
+                
+                if (isset($paramNames[1])) {
+                    foreach ($paramNames[1] as $index => $name) {
+                        $params[$name] = $matches[$index] ?? null;
+                    }
+                }
+
+                call_user_func($route['handler'], $params);
+                return;
             }
         }
-        Response::json(['error' => 'Not Found', 'path' => $path], 404);
+
+        // Route not found
+        http_response_code(404);
+        echo json_encode(['error' => 'Route not found']);
     }
 }
