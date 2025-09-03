@@ -37,7 +37,7 @@ class Router {
             $pattern = '#^' . $pattern . '$#';
 
             if (preg_match($pattern, $path, $matches)) {
-                array_shift($matches); // Remove full match
+                array_shift($matches); 
                 
                 // Extract parameter names
                 preg_match_all('/\{([^}]+)\}/', $route['path'], $paramNames);

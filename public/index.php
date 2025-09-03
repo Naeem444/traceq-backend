@@ -23,7 +23,9 @@ $router->add('POST', '/auth/signup', function () { AuthController::signup(); });
 $router->add('POST', '/auth/signin', function () { AuthController::signin(); });
 
 // User profile routes
-$router->add('POST', '/user/update-profile', function () { UserController::updateProfile(); });
+
+$router->add('POST', '/user/profile',    function () { UserController::updateProfile(); });
+$router->add('POST', '/user/profile/presign', function () { UserController::presignProfilePhoto(); }); // optional
 $router->add('GET', '/me', function () { UserController::me(); });
 
 // Uploads
@@ -37,6 +39,28 @@ $router->add('POST', '/report-lost-item', function () { LostController::create()
 // /report-found-item
 $router->add('POST', '/report-found-item', function () {
   return FoundController::create();
+});
+
+$router->add('GET', '/found-items', [FoundController::class, 'all']);
+$router->add('GET', '/lost-items', [LostController::class, 'all']);
+
+// DELETE /found-items/{idOrCustom}
+$router->add('DELETE', '/found-items/{idOrCustom}', function(array $params) {
+  FoundController::destroy($params['idOrCustom']);
+});
+
+// DELETE /lost-items/{idOrCustom}
+$router->add('DELETE', '/lost-items/{idOrCustom}', function(array $params) {
+  LostController::destroy($params['idOrCustom']);
+});
+// Found items for a user (by custom_id)
+$router->add('GET', '/users/{userCustomId}/found-items', function($p) {
+  FoundController::byUser($p['userCustomId']);
+});
+
+// Lost items for a user (by custom_id)
+$router->add('GET', '/users/{userCustomId}/lost-items', function($p) {
+  LostController::byUser($p['userCustomId']);
 });
 
 // Health check
